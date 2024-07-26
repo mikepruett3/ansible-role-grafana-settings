@@ -1,6 +1,13 @@
 ---
 # Cert tasks file for ansible-role-grafana-settings
 
+- name: "Test if cert boolean variable is set correctly"
+  ansible.builtin.assert:
+    that:
+      - cert is defined
+      - cert is boolean
+    quiet: yes
+
 - name: "Get cert_file path from {{ grafana_config }}"
   ansible.builtin.shell:
     cmd: grep -E -i "^\s*cert_file\s" {{ grafana_config }}

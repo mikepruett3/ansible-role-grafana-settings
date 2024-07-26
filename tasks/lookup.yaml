@@ -94,3 +94,21 @@
     current_cert_sn: "{{ result.stdout }}"
   when:
       - result.failed is false
+
+- name: "Collect new Certificate Serial Number"
+  ansible.builtin.shell:
+    cmd: "openssl x509 -in {{ certificate_file }} -noout -text | head -n 5 | tail -n 1 | awk '{ print $1 }'"
+  delegate_to: localhost
+  register: result
+
+- name: "Set Facts about current Certificate Serial Number"
+  ansible.builtin.set_fact:
+    new_cert_sn: "{{ result.stdout }}"
+  when:
+      - result.failed is false
+
+- name: "Set Facts for Cert variable"
+  ansible.builtin.set_fact:
+    cert: true
+  when:
+    - current_cert_sn != new_cert_sn
