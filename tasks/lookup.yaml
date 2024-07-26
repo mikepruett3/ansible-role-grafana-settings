@@ -51,7 +51,35 @@
     - result.stat.exists
     - result.failed is false
 
-#- name: "Get  path from {{ grafana_config }}"
-#  ansible.builtin.shell:
-#    cmd: grep -E -i "^\s*cert_key\s" {{ grafana_config }}
-#  register: result
+- name: "Get protocol from {{ grafana_config }}"
+  ansible.builtin.shell:
+    cmd: grep -E -i "^\s*protocol\s" {{ grafana_config }}
+  register: result
+
+- name: "Set protocol facts based on Grafana configuration"
+  ansible.builtin.set_fact:
+    protocol: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
+  when:
+      - result.failed is false
+
+- name: "Get http_port from {{ grafana_config }}"
+  ansible.builtin.shell:
+    cmd: grep -E -i "^\s*http_port\s" {{ grafana_config }}
+  register: result
+
+- name: "Set http_port facts based on Grafana configuration"
+  ansible.builtin.set_fact:
+    protocol: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
+  when:
+      - result.failed is false
+
+- name: "Get http_domain from {{ grafana_config }}"
+  ansible.builtin.shell:
+    cmd: grep -E -i "^\s*domain\s" {{ grafana_config }}
+  register: result
+
+- name: "Set http_domain facts based on Grafana configuration"
+  ansible.builtin.set_fact:
+    http_domain: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
+  when:
+      - result.failed is false
