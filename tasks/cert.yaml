@@ -74,9 +74,9 @@
     mode: '0640'
   with_items:
     - src: "{{ certificate_file }}"
-      dest: "{{ ssl_certificate_path }}/"
+      dest: "{{ cert_file_path }}/"
     - src: "{{ certificate_key }}"
-      dest: "{{ ssl_key_path }}/"
+      dest: "{{ cert_key_path }}/"
 
 #- name: "Update {{ ssl_config }} with new Certificate files"
 #  ansible.builtin.lineinfile:
