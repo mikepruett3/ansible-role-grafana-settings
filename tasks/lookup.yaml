@@ -69,7 +69,7 @@
 
 - name: "Set http_port facts based on Grafana configuration"
   ansible.builtin.set_fact:
-    protocol: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
+    http_port: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
   when:
       - result.failed is false
 
@@ -81,5 +81,16 @@
 - name: "Set http_domain facts based on Grafana configuration"
   ansible.builtin.set_fact:
     http_domain: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
+  when:
+      - result.failed is false
+
+- name: "Collect current Certificate Serial Number"
+  ansible.builtin.shell:
+    cmd: "echo | openssl s_client -showcerts -servername localhost -connect localhost:{{ http_port }} 2>/dev/null | openssl x509 -inform pem -noout -text | head -n 5 | tail -n 1 | awk '{ print $1 }'"
+  register: result
+
+- name: "Set Facts about current Certificate Serial Number"
+  ansible.builtin.set_fact:
+    current_cert_sn: "{{ result.stdout }}"
   when:
       - result.failed is false
