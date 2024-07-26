@@ -1,0 +1,97 @@
+---
+# tasks file for ansible-role-grafana-settings
+
+- name: "Include OS-specific variables"
+  include_vars: "{{ ansible_os_family }}.yaml"
+
+- name: "Check for Grafana configuration directory"
+  ansible.builtin.stat:
+    path: /etc/grafana/
+  register: result
+
+- name: "Set facts about Grafana config home directory"
+  ansible.builtin.set_fact:
+    grafana_home: /etc/grafana/
+  when:
+    - result.stat.exists
+    - result.stat.isdir
+    - result.failed is false
+
+- name: "Check for Grafana configuration INI File"
+  ansible.builtin.stat:
+    path: "{{ grafana_home }}/grafana.ini"
+  register: result
+  when:
+    - grafana_home is defined
+
+- name: "Set Facts for Grafana configuration INI File"
+  ansible.builtin.set_fact:
+    grafana_config: "{{ grafana_home }}/grafana.ini"
+  when:
+    - grafana_home is defined
+    - result.stat.exists
+    - result.failed is false
+
+- name: "Get cert_file path from {{ grafana_config }}"
+  ansible.builtin.shell:
+    cmd: grep -E -i "^\s*cert_file\s" {{ grafana_config }}
+  register: result
+  #changed_when: output.rc != 0
+
+#- name: "Set facts based on ssl_certificate output"
+#  ansible.builtin.set_fact:
+#    ssl_certificate: "{{ output.stdout }}"
+#    ssl_certificate_file: "{{ output.stdout.rsplit('/',1)[1].rstrip(';') }}"
+#    ssl_certificate_path: "{{ output.stdout.strip().split(' ')[1].rsplit('/',1)[0] }}"
+
+#- name: "Get ssl_certificate_key path from {{ ssl_config }}"
+#  ansible.builtin.shell:
+#    cmd: grep -E -i "^\s*ssl_certificate_key\s" {{ ssl_config }} | grep -v "#"
+#  register: output
+#  changed_when: output.rc != 0
+
+- name: "Set facts based on ssl_certificate_key output"
+  ansible.builtin.set_fact:
+    cert_file: "{{ result.stdout }}"
+    cert_file_file: "{{ result.stdout.rsplit('/',1)[1] }}"
+    cert_file_path: "{{ result.stdout.strip().split(' ')[1].rsplit('/',1)[0] }}"
+
+- name: "Print returned information"
+  ansible.builtin.debug:
+    msg:
+      - "{{ grafana_home }}"
+      - "{{ grafana_config }}"
+      - "{{ cert_file }}"
+      - "{{ cert_file_file }}"
+      - "{{ cert_file_path }}"
+      #- "{{ ssl_key }}"
+      #- "{{ ssl_key_file }}"
+      #- "{{ ssl_key_path }}"
+
+#- name: "Upload Certificates to {{ inventory_hostname }}"
+#  ansible.builtin.copy:
+#    src: "{{ item.src }}"
+#    dest: "{{ item.dest }}"
+#    owner: root
+#    group: root
+#    mode: '0640'
+#  with_items:
+#    - src: "{{ certificate_file }}"
+#      dest: "{{ ssl_certificate_path }}/"
+#    - src: "{{ certificate_key }}"
+#      dest: "{{ ssl_key_path }}/"
+
+#- name: "Update {{ ssl_config }} with new Certificate files"
+#  ansible.builtin.lineinfile:
+#    dest: "{{ ssl_config }}"
+#    regexp: "{{ item.regexp }}"
+#    line: "{{ item.line }}"
+#    state: present
+#    mode: '0644'
+#    backup: no
+#  with_items:
+#    - regexp: "^{{ ssl_certificate }}"
+#      line: "    ssl_certificate {{ ssl_certificate_path }}/{{ certificate_file.rsplit('/', 1)[1] }};"
+#    - regexp: "^{{ ssl_key }}"
+#      line: "    ssl_certificate_key {{ ssl_key_path }}/{{ certificate_key.rsplit('/', 1)[1] }};"
+#  notify: "Restart NGINX HTTP Server Daemon"
