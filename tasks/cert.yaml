@@ -1,17 +1,17 @@
 ---
 # tasks file for ansible-role-grafana-settings
 
-- name: "Include OS-specific variables"
-  include_vars: "{{ ansible_os_family }}.yaml"
+#- name: "Include OS-specific variables"
+#  include_vars: "{{ ansible_os_family }}.yaml"
 
 - name: "Check for Grafana configuration directory"
   ansible.builtin.stat:
-    path: /etc/grafana/
+    path: /etc/grafana
   register: result
 
 - name: "Set facts about Grafana config home directory"
   ansible.builtin.set_fact:
-    grafana_home: /etc/grafana/
+    grafana_home: /etc/grafana
   when:
     - result.stat.exists
     - result.stat.isdir
@@ -36,23 +36,10 @@
   ansible.builtin.shell:
     cmd: grep -E -i "^\s*cert_file\s" {{ grafana_config }}
   register: result
-  #changed_when: output.rc != 0
-
-#- name: "Set facts based on ssl_certificate output"
-#  ansible.builtin.set_fact:
-#    ssl_certificate: "{{ output.stdout }}"
-#    ssl_certificate_file: "{{ output.stdout.rsplit('/',1)[1].rstrip(';') }}"
-#    ssl_certificate_path: "{{ output.stdout.strip().split(' ')[1].rsplit('/',1)[0] }}"
-
-#- name: "Get ssl_certificate_key path from {{ ssl_config }}"
-#  ansible.builtin.shell:
-#    cmd: grep -E -i "^\s*ssl_certificate_key\s" {{ ssl_config }} | grep -v "#"
-#  register: output
-#  changed_when: output.rc != 0
+  changed_when: output.rc != 0
 
 - name: "Set facts based on ssl_certificate_key output"
   ansible.builtin.set_fact:
-    cert_file: "{{ result.stdout }}"
     cert_file_file: "{{ result.stdout.rsplit('/',1)[1] }}"
     cert_file_path: "{{ result.stdout.strip().split(' ')[1].rsplit('/',1)[0] }}"
 
@@ -61,7 +48,6 @@
     msg:
       - "{{ grafana_home }}"
       - "{{ grafana_config }}"
-      - "{{ cert_file }}"
       - "{{ cert_file_file }}"
       - "{{ cert_file_path }}"
       #- "{{ ssl_key }}"
