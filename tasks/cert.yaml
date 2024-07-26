@@ -93,7 +93,7 @@
     dest: "{{ item.dest }}"
     owner: "{{ grafana_user }}"
     group: "{{ grafana_group }}"
-    mode: '0640'
+    mode: '0400'
   with_items:
     - src: "{{ certificate_file }}"
       dest: "{{ cert_file_path }}/"
