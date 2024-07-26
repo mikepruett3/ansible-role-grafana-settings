@@ -52,31 +52,31 @@
     cert_key_file: "{{ result.stdout.rsplit('/',1)[1] }}"
     cert_key_path: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
 
-- name: "Print returned information"
-  ansible.builtin.debug:
-    msg:
-      - "{{ grafana_home }}"
-      - "{{ grafana_config }}"
-      - "{{ cert_file_file }}"
-      - "{{ cert_file_path }}"
-      - "{{ cert_key_file }}"
-      - "{{ cert_key_path }}"
-      #- "{{ ssl_key }}"
-      #- "{{ ssl_key_file }}"
-      #- "{{ ssl_key_path }}"
+#- name: "Print returned information"
+#  ansible.builtin.debug:
+#    msg:
+#      - "{{ grafana_home }}"
+#      - "{{ grafana_config }}"
+#      - "{{ cert_file_file }}"
+#      - "{{ cert_file_path }}"
+#      - "{{ cert_key_file }}"
+#      - "{{ cert_key_path }}"
+#      - "{{ ssl_key }}"
+#      - "{{ ssl_key_file }}"
+#      - "{{ ssl_key_path }}"
 
-#- name: "Upload Certificates to {{ inventory_hostname }}"
-#  ansible.builtin.copy:
-#    src: "{{ item.src }}"
-#    dest: "{{ item.dest }}"
-#    owner: root
-#    group: root
-#    mode: '0640'
-#  with_items:
-#    - src: "{{ certificate_file }}"
-#      dest: "{{ ssl_certificate_path }}/"
-#    - src: "{{ certificate_key }}"
-#      dest: "{{ ssl_key_path }}/"
+- name: "Upload Certificates to {{ inventory_hostname }}"
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0640'
+  with_items:
+    - src: "{{ certificate_file }}"
+      dest: "{{ ssl_certificate_path }}/"
+    - src: "{{ certificate_key }}"
+      dest: "{{ ssl_key_path }}/"
 
 #- name: "Update {{ ssl_config }} with new Certificate files"
 #  ansible.builtin.lineinfile:
