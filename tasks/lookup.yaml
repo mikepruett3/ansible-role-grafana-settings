@@ -1,0 +1,57 @@
+---
+# Lookup tasks file for ansible-role-grafana-settings
+
+- name: "Check for Grafana group"
+  ansible.builtin.shell:
+    cmd: "getent group {{ grafana_group }}"
+  register: result
+
+- name: "Set facts about Grafana group"
+  ansible.builtin.set_fact:
+    grafana_group_exist: True
+  when:
+    - result.failed is false
+
+- name: "Check for Grafana user"
+  ansible.builtin.shell:
+    cmd: "getent passwd {{ grafana_user }}"
+  register: result
+
+- name: "Set facts about Grafana user"
+  ansible.builtin.set_fact:
+    grafana_user_exist: True
+  when:
+    - result.failed is false
+
+- name: "Check for Grafana configuration directory"
+  ansible.builtin.stat:
+    path: /etc/grafana
+  register: result
+
+- name: "Set facts about Grafana config home directory"
+  ansible.builtin.set_fact:
+    grafana_home: /etc/grafana
+  when:
+    - result.stat.exists
+    - result.stat.isdir
+    - result.failed is false
+
+- name: "Check for Grafana configuration INI File"
+  ansible.builtin.stat:
+    path: "{{ grafana_home }}/grafana.ini"
+  register: result
+  when:
+    - grafana_home is defined
+
+- name: "Set Facts for Grafana configuration INI File"
+  ansible.builtin.set_fact:
+    grafana_config: "{{ grafana_home }}/grafana.ini"
+  when:
+    - grafana_home is defined
+    - result.stat.exists
+    - result.failed is false
+
+#- name: "Get  path from {{ grafana_config }}"
+#  ansible.builtin.shell:
+#    cmd: grep -E -i "^\s*cert_key\s" {{ grafana_config }}
+#  register: result

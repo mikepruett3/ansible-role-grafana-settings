@@ -1,58 +1,5 @@
 ---
-# tasks file for ansible-role-grafana-settings
-
-#- name: "Include OS-specific variables"
-#  include_vars: "{{ ansible_os_family }}.yaml"
-
-- name: "Check for Grafana group"
-  ansible.builtin.shell:
-    cmd: "getent group {{ grafana_group }}"
-  register: result
-
-- name: "Set facts about Grafana group"
-  ansible.builtin.set_fact:
-    grafana_group_exist: True
-  when:
-    - result.failed is false
-
-- name: "Check for Grafana user"
-  ansible.builtin.shell:
-    cmd: "getent passwd {{ grafana_user }}"
-  register: result
-
-- name: "Set facts about Grafana user"
-  ansible.builtin.set_fact:
-    grafana_user_exist: True
-  when:
-    - result.failed is false
-
-- name: "Check for Grafana configuration directory"
-  ansible.builtin.stat:
-    path: /etc/grafana
-  register: result
-
-- name: "Set facts about Grafana config home directory"
-  ansible.builtin.set_fact:
-    grafana_home: /etc/grafana
-  when:
-    - result.stat.exists
-    - result.stat.isdir
-    - result.failed is false
-
-- name: "Check for Grafana configuration INI File"
-  ansible.builtin.stat:
-    path: "{{ grafana_home }}/grafana.ini"
-  register: result
-  when:
-    - grafana_home is defined
-
-- name: "Set Facts for Grafana configuration INI File"
-  ansible.builtin.set_fact:
-    grafana_config: "{{ grafana_home }}/grafana.ini"
-  when:
-    - grafana_home is defined
-    - result.stat.exists
-    - result.failed is false
+# Cert tasks file for ansible-role-grafana-settings
 
 - name: "Get cert_file path from {{ grafana_config }}"
   ansible.builtin.shell:
@@ -63,6 +10,8 @@
   ansible.builtin.set_fact:
     cert_file_file: "{{ result.stdout.rsplit('/',1)[1] }}"
     cert_file_path: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
+  when:
+      - result.failed is false
 
 - name: "Get cert_key path from {{ grafana_config }}"
   ansible.builtin.shell:
@@ -73,19 +22,8 @@
   ansible.builtin.set_fact:
     cert_key_file: "{{ result.stdout.rsplit('/',1)[1] }}"
     cert_key_path: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
-
-#- name: "Print returned information"
-#  ansible.builtin.debug:
-#    msg:
-#      - "{{ grafana_home }}"
-#      - "{{ grafana_config }}"
-#      - "{{ cert_file_file }}"
-#      - "{{ cert_file_path }}"
-#      - "{{ cert_key_file }}"
-#      - "{{ cert_key_path }}"
-#      - "{{ ssl_key }}"
-#      - "{{ ssl_key_file }}"
-#      - "{{ ssl_key_path }}"
+  when:
+      - result.failed is false
 
 - name: "Upload Certificates to {{ inventory_hostname }}"
   ansible.builtin.copy:
