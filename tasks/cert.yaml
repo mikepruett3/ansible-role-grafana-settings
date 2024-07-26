@@ -107,7 +107,7 @@
     dest: "{{ grafana_config }}"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
-    owner: "{{ grafana_user }}"
+    owner: root
     group: "{{ grafana_group }}"
     mode: '0640'
     state: present
@@ -115,6 +115,6 @@
   with_items:
     - regexp: '^\s*cert_file\s'
       line: "cert_file = {{ cert_file_path }}/{{ certificate_file.rsplit('/', 1)[1] }}"
-#    - regexp: "^{{ ssl_key }}"
-#      line: "    ssl_certificate_key {{ ssl_key_path }}/{{ certificate_key.rsplit('/', 1)[1] }};"
+    - regexp: '^\s*cert_key\s'
+      line: "cert_key = {{ cert_key_path }}/{{ certificate_key.rsplit('/', 1)[1] }}"
 #  notify: "Restart NGINX HTTP Server Daemon"
