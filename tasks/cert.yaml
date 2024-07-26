@@ -117,4 +117,4 @@
       line: "cert_file = {{ cert_file_path }}/{{ certificate_file.rsplit('/', 1)[1] }}"
     - regexp: '^\s*cert_key\s'
       line: "cert_key = {{ cert_key_path }}/{{ certificate_key.rsplit('/', 1)[1] }}"
-  notify: "Restart NGINX HTTP Server Daemon"
+  notify: "Restart Grafana HTTP Server Daemon"
