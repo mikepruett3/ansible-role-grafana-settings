@@ -40,7 +40,7 @@
 - name: "Set facts based on ssl_certificate_key output"
   ansible.builtin.set_fact:
     cert_file_file: "{{ result.stdout.rsplit('/',1)[1] }}"
-    cert_file_path: "{{ result.stdout.strip().split(' ')[1].rsplit('/',1)[0] }}"
+    cert_file_path: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
 
 - name: "Print returned information"
   ansible.builtin.debug:
