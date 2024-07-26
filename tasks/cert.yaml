@@ -37,10 +37,20 @@
     cmd: grep -E -i "^\s*cert_file\s" {{ grafana_config }}
   register: result
 
-- name: "Set facts based on ssl_certificate_key output"
+- name: "Set facts based on cert_file output"
   ansible.builtin.set_fact:
     cert_file_file: "{{ result.stdout.rsplit('/',1)[1] }}"
     cert_file_path: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
+
+- name: "Get cert_key path from {{ grafana_config }}"
+  ansible.builtin.shell:
+    cmd: grep -E -i "^\s*cert_key\s" {{ grafana_config }}
+  register: result
+
+- name: "Set facts based on cert_key output"
+  ansible.builtin.set_fact:
+    cert_key_file: "{{ result.stdout.rsplit('/',1)[1] }}"
+    cert_key_path: "{{ result.stdout.strip().split(' = ')[1].rsplit('/',1)[0] }}"
 
 - name: "Print returned information"
   ansible.builtin.debug:
@@ -49,6 +59,8 @@
       - "{{ grafana_config }}"
       - "{{ cert_file_file }}"
       - "{{ cert_file_path }}"
+      - "{{ cert_key_file }}"
+      - "{{ cert_key_path }}"
       #- "{{ ssl_key }}"
       #- "{{ ssl_key_file }}"
       #- "{{ ssl_key_path }}"
