@@ -36,7 +36,6 @@
   ansible.builtin.shell:
     cmd: grep -E -i "^\s*cert_file\s" {{ grafana_config }}
   register: result
-  changed_when: output.rc != 0
 
 - name: "Set facts based on ssl_certificate_key output"
   ansible.builtin.set_fact:
